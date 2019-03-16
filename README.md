@@ -3,7 +3,7 @@ A Node module to communicate with the Pixy2 camera through an Arduino (see https
 
 ## installation
 ```
-npm install node-pixy2
+npm install git+https://git@github.com/eriknoorland/node-pixy2.git
 ```
 
 ## states
@@ -24,5 +24,7 @@ pixy2.on('data', (data) => {
 
 pixy2
   .init()
-  .setState('line');
+  .then(() => {
+    pixy2.setState('line');
+  });
 ```

@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 const SerialPort = require('serialport');
 const Readline = require('@serialport/parser-readline');
-const State = require('./src/State');
+const State = require('./State');
 
 const Pixy2 = (path) => {
   const eventEmitter = new EventEmitter();
@@ -88,7 +88,6 @@ const Pixy2 = (path) => {
     init,
     setState,
     on: eventEmitter.on.bind(eventEmitter),
-    off: eventEmitter.off.bind(eventEmitter),
   };
 };
 
