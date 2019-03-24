@@ -37,7 +37,7 @@ const Pixy2 = (path) => {
 
       parser.on('data', (data) => {
         try {
-          eventEmitter.emit('data', data);
+          eventEmitter.emit('data', JSON.parse(data));
         } catch(error) {}
       });
     });
