@@ -1,5 +1,5 @@
 # node-pixy2-serial-json
-A Node module to communicate with the Pixy2 camera through an Arduino (see https://github.com/eriknoorland/pixy2-serial-json).
+A Node module to communicate with the Pixy2 camera through an Arduino (see https://github.com/eriknoorland/arduino-pixy2).
 
 ## installation
 ```
@@ -18,13 +18,15 @@ npm install git+https://git@github.com/eriknoorland/node-pixy2.git
 const Pixy2 = require('node-pixy2');
 const pixy2 = Pixy2('/dev/tty.usbserial-A9ITLJ7V');
 
-pixy2.on('data', (data) => {
-  console.log(data);
-});
+pixy2.on('data', console.log);
 
 pixy2
   .init()
   .then(() => {
-    pixy2.setState('line');
+    pixy2.setState('line', {
+      pan: 127,
+      tilt: 255,
+      led: 255,
+    });
   });
 ```
