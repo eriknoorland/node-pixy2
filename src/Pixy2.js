@@ -1,8 +1,14 @@
 const EventEmitter = require('events');
+const cobs = require('cobs');
 const SerialPort = require('serialport');
-const Readline = require('@serialport/parser-readline');
+const Parser = require('./Parser');
 const State = require('./State');
 
+/**
+ * Pixy2
+ * @param {String} path
+ * @return {Object}
+ */
 const Pixy2 = (path) => {
   const eventEmitter = new EventEmitter();
 
@@ -26,7 +32,7 @@ const Pixy2 = (path) => {
       }
 
       port = new SerialPort(path, { baudRate: 115200 });
-      parser = new Readline({ delimiter: '\r\n' });
+      parser = new Parser();
 
       port.pipe(parser);
 
@@ -35,17 +41,10 @@ const Pixy2 = (path) => {
       port.on('close', () => eventEmitter.emit('close'));
       port.on('open', onPortOpen);
 
-      parser.on('data', (data) => {
-        try {
-          const parsedData = JSON.parse(data);
-
-          if (parsedData.status === 'ready') {
-            return resolve();
-          }
-
-          eventEmitter.emit('data', parsedData);
-        } catch(error) {}
-      });
+      parser.on('ready', resolve);
+      parser.on('line', data => eventEmitter.emit('line', data));
+      parser.on('blocks', data => eventEmitter.emit('blocks', data));
+      parser.on('stateChange', data => eventEmitter.emit('stateChange', data));
     });
   }
 
@@ -62,13 +61,15 @@ const Pixy2 = (path) => {
     return new Promise((resolve) => {
       switch (newState) {
         case State.IDLE:
-          port.write([0xA6, 0x10]);
+          writeToSerialPort([0xA6, 0x10, pan, tilt, led]);
           break;
+
         case State.LINE:
-          port.write(['0xA6', '0x15', pan, tilt, led]);
+          writeToSerialPort([0xA6, 0x15, pan, tilt, led]);
           break;
+
         case State.BLOCKS:
-          port.write(['0xA6', '0x20', pan, tilt, led]);
+          writeToSerialPort([0xA6, 0x20, pan, tilt, led]);
           break;
       }
 
@@ -76,6 +77,14 @@ const Pixy2 = (path) => {
 
       resolve();
     });
+  }
+
+  /**
+   * 
+   * @param {Array} buffer
+   */
+  function writeToSerialPort(buffer) {
+    port.write(cobs.encode(Buffer.from(buffer), true));
   }
 
   /**
@@ -106,6 +115,7 @@ const Pixy2 = (path) => {
     init,
     setState,
     on: eventEmitter.on.bind(eventEmitter),
+    off: eventEmitter.off.bind(eventEmitter),
   };
 };
 

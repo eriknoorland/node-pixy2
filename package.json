@@ -26,6 +26,8 @@
   },
   "homepage": "https://github.com/eriknoorland/node-pixy2#readme",
   "dependencies": {
-    "serialport": "^7.1.1"
-  }
+    "cobs": "^0.2.1",
+    "serialport": "^7.1.5"
+  },
+  "devDependencies": {}
 }
